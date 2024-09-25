@@ -27,6 +27,26 @@
   src: url('/fonts/Hack/Hack-Regular.ttf');
 }
 @font-face {
+  font-family: 'IBMPlexMono';
+  src: url('/fonts/IBMPlex/IBMPlexSans-Regular.ttf');
+}
+@font-face {
+  font-family: 'Iosevka';
+  src: url('/fonts/Iosevka/Iosevka-Regular.ttf');
+}
+@font-face {
+  font-family: 'Fantasque';
+  src: url('/fonts/Fantasque/FantasqueSansMono-Regular.ttf');
+}
+@font-face {
+  font-family: 'Monoid';
+  src: url('/fonts/Monoid/Monoid-Regular.ttf');
+}
+@font-face {
+  font-family: 'Departure';
+  src: url('/fonts/Departure/DepartureMono-Regular.ttf');
+}
+@font-face {
   font-family: 'we-come-in-peace';
   src: url('/fonts/we-come-in-peace/we-come-in-peace-bb.regular.ttf');
 }
