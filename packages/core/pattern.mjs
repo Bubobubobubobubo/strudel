@@ -809,15 +809,6 @@ export class Pattern {
   //////////////////////////////////////////////////////////////////////
   // Multi-pattern functions
 
-  /**
-   * Stacks the given pattern(s) to the current pattern.
-   * @name stack
-   * @memberof Pattern
-   * @example
-   * s("hh*4").stack(
-   *   note("c4(5,8)")
-   * )
-   */
   stack(...pats) {
     return stack(this, ...pats);
   }
@@ -826,30 +817,9 @@ export class Pattern {
     return sequence(this, ...pats);
   }
 
-  /**
-   * Appends the given pattern(s) to the current pattern.
-   * @name seq
-   * @memberof Pattern
-   * @synonyms sequence, fastcat
-   * @example
-   * s("hh*4").seq(
-   *   note("c4(5,8)")
-   * )
-   */
   seq(...pats) {
     return sequence(this, ...pats);
   }
-
-  /**
-   * Appends the given pattern(s) to the next cycle.
-   * @name cat
-   * @memberof Pattern
-   * @synonyms slowcat
-   * @example
-   * s("hh*4").cat(
-   *   note("c4(5,8)")
-   * )
-   */
   cat(...pats) {
     return cat(this, ...pats);
   }
@@ -1280,6 +1250,12 @@ export function reify(thing) {
  * @example
  * stack("g3", "b3", ["e4", "d4"]).note()
  * // "g3,b3,[e4,d4]".note()
+ *
+ * @example
+ * // As a chained function:
+ * s("hh*4").stack(
+ *   note("c4(5,8)")
+ * )
  */
 export function stack(...pats) {
   // Array test here is to avoid infinite recursions..
@@ -1408,6 +1384,11 @@ export function slowcatPrime(...pats) {
  * cat("e5", "b4", ["d5", "c5"]).note()
  * // "<e5 b4 [d5 c5]>".note()
  *
+ * @example
+ * // As a chained function:
+ * s("hh*4").cat(
+ *    note("c4(5,8)")
+ * )
  */
 export function cat(...pats) {
   return slowcat(...pats);
@@ -1478,12 +1459,18 @@ export function sequence(...pats) {
 }
 
 /** Like **cat**, but the items are crammed into one cycle.
- * @synonyms fastcat, sequence
+ * @synonyms sequence, fastcat
  * @example
  * seq("e5", "b4", ["d5", "c5"]).note()
  * // "e5 b4 [d5 c5]".note()
  *
+ * @example
+ * // As a chained function:
+ * s("hh*4").seq(
+ *   note("c4(5,8)")
+ * )
  */
+
 export function seq(...pats) {
   return fastcat(...pats);
 }
@@ -2045,6 +2032,34 @@ export const zoom = register('zoom', function (s, e, pat) {
 export const { zoomArc, zoomarc } = register(['zoomArc', 'zoomarc'], function (a, pat) {
   return pat.zoom(a.begin, a.end);
 });
+
+/**
+ * Splits a pattern into the given number of slices, and plays them according to a pattern of slice numbers.
+ * Similar to `slice`, but slices up patterns rather than sound samples.
+ * @param {number} number of slices
+ * @param {number} slices to play
+ * @example
+ * note("0 1 2 3 4 5 6 7".scale('c:mixolydian'))
+ *.bite(4, "3 2 1 0")
+ * @example
+ * sound("bd - bd bd*2, - sd:6 - sd:5 sd:1 - [- sd:2] -, hh [- cp:7]")
+  .bank("RolandTR909").speed(1.2)
+  .bite(4, "0 0 [1 2] <3 2> 0 0 [2 1] 3")
+ */
+export const bite = register(
+  'bite',
+  (npat, ipat, pat) => {
+    return ipat
+      .fmap((i) => (n) => {
+        const a = Fraction(i).div(n).mod(1);
+        const b = a.add(Fraction(1).div(n));
+        return pat.zoom(a, b);
+      })
+      .appLeft(npat)
+      .squeezeJoin();
+  },
+  false,
+);
 
 /**
  * Selects the given fraction of the pattern and repeats that part to fill the remainder of the cycle.
